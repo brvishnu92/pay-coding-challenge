@@ -112,6 +112,24 @@ test("performWithdrawal throws error on invalid amount", async () => {
 });
 
 
+test("performWithdrawal fails on insufficient funds", async () => {
+    const res = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn()
+    }
+
+    const firstCustomer = getExistingCustomers()[0]
+    const req = {
+        body: { userId: firstCustomer.id, amount: 100,  }
+    };
+
+    await performWithdrawal(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status().json).toHaveBeenCalledWith({ "message": "Insufficient funds." });
+});
+
+
 test("performWithdrawal passes on valid request", async () => {
     const res = {
         json: jest.fn(),
@@ -186,6 +204,23 @@ test("performTransaction fails on insufficient funds", async () => {
     await performTransaction(req, res);
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.status().json).toHaveBeenCalledWith({ "message": "Insufficient funds." });
+});
+
+test("performTransaction fails on invalid user", async () => {
+    const res = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn()
+    }
+
+    const secondCustomer = getExistingCustomers()[1]
+    const req = {
+        body: { userId: 'kasjnd', amount: 100, recipientId: secondCustomer.id }
+    };
+
+    await performTransaction(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status().json).toHaveBeenCalledWith({ "message": "Customer or Recipient doesn't exist." });
 });
 
 test("performTransaction succeeds", async () => {

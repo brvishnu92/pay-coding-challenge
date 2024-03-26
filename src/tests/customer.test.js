@@ -36,6 +36,22 @@ test("getCustomers returns error when no userId passed", async () => {
     expect(res.status().json).toHaveBeenCalledWith({ "message": "Invalid userId provided." });
 });
 
+test("getCustomers returns error when invalid userId passed", async () => {
+    const res = {
+        json: jest.fn(),
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn()
+    }
+
+    const req = {
+        params: { userId: 'akjnsd' }
+    };
+
+    await getCustomer(req, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status().json).toHaveBeenCalledWith({ "message": "Customer does not exist for that id." });
+});
+
 
 test("createCustomer returns error when invalid amount passed", async () => {
     const res = {
